@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use super::{RadiusCode, RadiusAttribute, RadiusAttributeDef, RadiusData};
 
+/// Default Dictionary
 #[allow(dead_code)]
 pub const DEFAULT_DICTIONARY: &'static str = r"
 ATTRIBUTE   User-Name       1   string

@@ -1,4 +1,5 @@
-mod dictionary;
+/// Dictionary
+pub mod dictionary;
 mod host;
 
 use std::io;
@@ -7,7 +8,7 @@ use std::time::Duration;
 use super::radius::{RadiusCode, RadiusAttribute, RadiusAttributeDef, RadiusData};
 
 use self::host::Host;
-pub use self::dictionary::Dictionary;
+use self::dictionary::Dictionary;
 
 use mio::net::UdpSocket;
 use mio::{Events, Ready, Poll, PollOpt, Token};

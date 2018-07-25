@@ -1,5 +1,5 @@
 /// RADIUS message types
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum RadiusCode {
     /// 1 = Access-Request
     AccessRequest,
