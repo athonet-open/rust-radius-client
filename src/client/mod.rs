@@ -112,18 +112,18 @@ impl Client {
         let mut hash = [0; 16];
         md5.result(&mut hash);
 
-        if hash != res.get_authenticator() {
-            Err(io::Error::new(io::ErrorKind::InvalidData, String::from("Mismatching packet authenticator")))
+        if hash == res.get_authenticator() {
+            Ok(res)
         }
         else {
-            Ok(req)
+            Err(io::Error::new(io::ErrorKind::InvalidData, String::from("Mismatching packet authenticator")))
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{Client, Dictionary};
+    use super::{Client, Dictionary, RadiusCode};
     use client::dictionary::DEFAULT_DICTIONARY;
     use std::str::FromStr;
 
@@ -136,6 +136,7 @@ mod tests {
             c.create_attribute_by_name("NAS-IP-Address", vec![172, 25, 0, 1]).unwrap(),
             c.create_attribute_by_name("NAS-Port", vec![0]).unwrap(),
         ])).unwrap();
-        c.send_packet(p).unwrap();
+        let r = c.send_packet(p).unwrap();
+        assert!(r.get_code() == &RadiusCode::AccessAccept);
     }
 }
