@@ -120,7 +120,7 @@ impl Dictionary {
         Err(format!("Unrecognized attribute code: {}", code))
     }
 
-    /// convert a byte array into a RadiusData element
+    /// converts a byte array into a RadiusData element
     pub fn from_bytes(&self, data: &[u8]) -> Result<RadiusData, String> {
         let mut attributes = Vec::new();
         let mut i = 20;
