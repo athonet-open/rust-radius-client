@@ -1,0 +1,9 @@
+[package]
+name = "radius_client"
+version = "0.1.0"
+authors = ["Marco Napetti <marco.napetti@athonet.com>"]
+
+[dependencies]
+rand = "0.5"
+rust-crypto = "0.2"
+mio = "0.6"
