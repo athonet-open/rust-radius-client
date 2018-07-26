@@ -9,7 +9,7 @@ First, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rust-radius-client = { git = "https://github.com/athonet-open/rust-radius-client.git" }
+radius_client = { git = "https://github.com/athonet-open/rust-radius-client.git" }
 ```
 
 Next, add this to your crate root (`src/lib.rs` or `src/main.rs`):
