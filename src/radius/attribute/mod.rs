@@ -15,8 +15,8 @@ impl RadiusAttribute {
     /// constructor
     pub fn new(definition: RadiusAttributeDef, value: Vec<u8>) -> RadiusAttribute {
         RadiusAttribute {
-            definition: definition,
-            value: value,
+            definition,
+            value,
         }
     }
 

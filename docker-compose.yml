@@ -1,0 +1,35 @@
+version: "2"
+services:
+  freeradius:
+    image: marcelmaatkamp/freeradius
+    volumes:
+      - "./tests/freeradius/clients.conf:/etc/raddb/clients.conf"
+      - "./tests/freeradius/users:/etc/raddb/users"
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.100
+  rust:
+    image: rust
+    environment:
+      RUST_BACKTRACE: 1
+      RUST_TEST_THREADS: 1
+      RUST_LOG: info
+    links:
+      - freeradius
+    working_dir: /usr/src/radius_client
+    volumes:
+      - .:/usr/src/radius_client
+      - cargo_git:/root/.cargo/git
+      - cargo_registry:/root/.cargo/registry
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.2
+volumes:
+  cargo_git: {}
+  cargo_registry: {}
+networks:
+  mynet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/24

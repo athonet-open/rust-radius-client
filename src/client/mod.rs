@@ -28,9 +28,9 @@ pub struct Client {
 
 impl Client {
     /// constructor
-    pub fn new(server: &str, authport: usize, accport: usize, coaport: usize, secret: &str, dict: Dictionary) -> Result<Client, io::Error> {
+    pub fn factory(server: &str, authport: usize, accport: usize, coaport: usize, secret: &str, dict: Dictionary) -> Result<Client, io::Error> {
         Ok(Client {
-            host: Host::new(authport, accport, coaport, dict).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?,
+            host: Host::new(authport, accport, coaport, dict),
             server: server.to_owned(),
             secret: secret.to_owned(),
             retries: 3,
@@ -55,7 +55,7 @@ impl Client {
     }
 
     /// sends a packet to the RADIUS server
-    pub fn send_packet(&self, p: RadiusData) -> Result<RadiusData, io::Error> {
+    pub fn send_packet(&self, p: &RadiusData) -> Result<RadiusData, io::Error> {
         let local = "0.0.0.0:0".parse().map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
         let remote = &format!("{}:{}", self.server, self.host.get_port(p.get_code())).parse().map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
 
@@ -82,7 +82,7 @@ impl Client {
 
                         if amount > 0 {
                             let response = &response[0..amount];//shrink slice
-                            return self.verify_reply(p, self.host.from_bytes(&response).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?);
+                            return self.verify_reply(&p, self.host.load_bytes(&response).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?);
                         }
                     },
                     _ => return Err(io::Error::new(io::ErrorKind::Other, "Invalid Token")),
@@ -92,10 +92,10 @@ impl Client {
             retry += 1;
         }
 
-        return Err(io::Error::new(io::ErrorKind::TimedOut, ""));
+        Err(io::Error::new(io::ErrorKind::TimedOut, ""))
     }
 
-    fn verify_reply(&self, req: RadiusData, res: RadiusData) -> Result<RadiusData, io::Error> {
+    fn verify_reply(&self, req: &RadiusData, res: RadiusData) -> Result<RadiusData, io::Error> {
         if req.get_identifier() != res.get_identifier() {
             return Err(io::Error::new(io::ErrorKind::InvalidData, String::from("Mismatching packet identifier")));
         }
@@ -118,25 +118,5 @@ impl Client {
         else {
             Err(io::Error::new(io::ErrorKind::InvalidData, String::from("Mismatching packet authenticator")))
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{Client, Dictionary, RadiusCode};
-    use client::dictionary::DEFAULT_DICTIONARY;
-    use std::str::FromStr;
-
-    #[test]
-    fn authentication() {
-        // test with https://hub.docker.com/r/marcelmaatkamp/freeradius/
-        let d = Dictionary::from_str(DEFAULT_DICTIONARY).unwrap();
-        let c = Client::new("172.25.0.100", 1812, 1813, 3799, "SECRET", d).unwrap();
-        let p = c.get_auth_packet("testing", "password", None, None, Some(vec![
-            c.create_attribute_by_name("NAS-IP-Address", vec![172, 25, 0, 1]).unwrap(),
-            c.create_attribute_by_name("NAS-Port", vec![0]).unwrap(),
-        ])).unwrap();
-        let r = c.send_packet(p).unwrap();
-        assert!(r.get_code() == &RadiusCode::AccessAccept);
     }
 }

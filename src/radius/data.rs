@@ -15,10 +15,10 @@ impl RadiusData {
     /// constructor
     pub fn new(code: RadiusCode, identifier: Option<u8>, authenticator: Option<Vec<u8>>, attributes: Option<Vec<RadiusAttribute>>) -> RadiusData {
         RadiusData {
-            code: code,
-            identifier: identifier.or(Some(Self::create_id())).unwrap(),
-            authenticator: authenticator.or(Some(Self::create_authenticator())).unwrap(),
-            attributes: attributes.or(Some(Vec::new())).unwrap(),
+            code,
+            identifier: identifier.or_else(|| Some(Self::create_id())).unwrap(),
+            authenticator: authenticator.or_else(|| Some(Self::create_authenticator())).unwrap(),
+            attributes: attributes.or_else(|| Some(Vec::new())).unwrap(),
         }
     }
 

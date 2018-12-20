@@ -4,7 +4,7 @@ use super::{RadiusCode, RadiusAttribute, RadiusAttributeDef, RadiusData};
 
 /// Default Dictionary
 #[allow(dead_code)]
-pub const DEFAULT_DICTIONARY: &'static str = r"
+pub const DEFAULT_DICTIONARY: &str = r"
 ATTRIBUTE   User-Name       1   string
 ATTRIBUTE   User-Password       2   string
 ATTRIBUTE   CHAP-Password       3   octets
@@ -122,7 +122,7 @@ impl Dictionary {
     }
 
     /// converts a byte array into a RadiusData element
-    pub fn from_bytes(&self, data: &[u8]) -> Result<RadiusData, String> {
+    pub fn load_bytes(&self, data: &[u8]) -> Result<RadiusData, String> {
         let mut attributes = Vec::new();
         let mut i = 20;
         while i < data.len() {
@@ -175,7 +175,7 @@ mod tests {
             0x11, 0xc5, 0x4c, 0xe3, 0x26
         ];
 
-        let data = d.from_bytes(&example).unwrap();
+        let data = d.load_bytes(&example).unwrap();
         assert_eq!(example.to_vec(), data.get_bytes());
     }
 }

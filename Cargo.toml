@@ -2,6 +2,7 @@
 name = "radius_client"
 version = "0.1.0"
 authors = ["Marco Napetti <marco.napetti@athonet.com>"]
+edition = "2018"
 
 [dependencies]
 rand = "0.5"

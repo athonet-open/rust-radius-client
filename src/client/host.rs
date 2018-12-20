@@ -15,19 +15,19 @@ pub struct Host {
 }
 
 impl Host {
-    pub fn new(authport: usize, accport: usize, coaport: usize, dict: Dictionary) -> Result<Host, String> {
-        Ok(Host {
-            dict: dict,
-            authport: authport,
-            accport: accport,
+    pub fn new(authport: usize, accport: usize, coaport: usize, dict: Dictionary) -> Self {
+        Host {
+            dict,
+            authport,
+            accport,
             _coaport: coaport,
-        })
+        }
     }
 
     pub fn get_port(&self, code: &RadiusCode) -> usize {
         match code {
-            &RadiusCode::AccessRequest => self.authport,
-            //&RadiusCode::Co => self.coaport,
+            RadiusCode::AccessRequest => self.authport,
+            //RadiusCode::Co => self.coaport,
             _ => self.accport,
         }
     }
@@ -74,7 +74,7 @@ impl Host {
         let mut result = Vec::new();
         let mut last = authenticator.to_vec();
 
-        while buf.len() > 0 {
+        while !buf.is_empty() {
             let mut temp = secret.to_vec();
             temp.append(&mut last.to_vec());
 
@@ -113,15 +113,15 @@ impl Host {
         Ok(hmac.result().code().to_vec())
     }
 
-    pub fn from_bytes(&self, data: &[u8]) -> Result<RadiusData, String> {
-        self.dict.from_bytes(data)
+    pub fn load_bytes(&self, data: &[u8]) -> Result<RadiusData, String> {
+        self.dict.load_bytes(data)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::{Host, Dictionary};
-    use client::dictionary::DEFAULT_DICTIONARY;
+    use crate::client::dictionary::DEFAULT_DICTIONARY;
     use std::str::FromStr;
 
     #[test]
@@ -139,9 +139,9 @@ mod tests {
             0x11, 0xc5, 0x4c, 0xe3, 0x26
         ];
 
-        let h = Host::new(1812, 1813, 3799, Dictionary::from_str(DEFAULT_DICTIONARY).unwrap()).unwrap();
+        let h = Host::new(1812, 1813, 3799, Dictionary::from_str(DEFAULT_DICTIONARY).unwrap());
 
-        let data = h.from_bytes(&example).unwrap();
+        let data = h.load_bytes(&example).unwrap();
         assert_eq!(example.to_vec(), data.get_bytes());
 
         match data.get_attribute_by_name("Message-Authenticator") {
